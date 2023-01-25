@@ -153,4 +153,54 @@ public class MemberDao {
 		
 	}
 	
+	public MemberDto getMemberInfo(String id) {
+		
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;		
+		int resultFlag = 0;
+		MemberDto dto = null;
+		
+		String sql = "SELECT * FROM members WHERE id = ?";
+		
+		try {
+			Class.forName(driverName);//드라이버 불러오기
+			conn = DriverManager.getConnection(url, username, password);//DB 연동
+			
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, id);
+			
+			rs = pstmt.executeQuery();//ResultSect 객체인 rs로 받기
+			
+			if(rs.next()) {//rs로 받은 레코드를 dto 객체에 옮겨 싣기
+				dto = new MemberDto();
+				dto.setId(rs.getString("id"));
+				dto.setPassword(rs.getString("password"));
+				dto.setName(rs.getString("name"));
+				dto.setEmail(rs.getString("email"));
+				dto.setJointime(rs.getTimestamp("jointime"));
+			}
+		
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if(rs != null) {
+					rs.close();
+				}				
+				if(pstmt != null) {
+					pstmt.close();
+				}
+				if(conn != null) {
+					conn.close();
+				}				
+			}catch(Exception e2) {
+				e2.printStackTrace();
+			}
+			
+		}
+		
+		return dto; 
+	}
+	
 }
